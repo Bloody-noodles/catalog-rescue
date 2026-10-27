@@ -46,7 +46,11 @@ def clean_text_columns(df):
 
     for column in df.columns:
 
-        if df[column].dtype != "object":
+        dtype = df[column].dtype
+        if not (
+            pd.api.types.is_object_dtype(dtype)
+            or isinstance(dtype, pd.StringDtype)
+        ):
             continue
 
         for index in df.index:
@@ -84,6 +88,8 @@ def clean_price_column(df):
 
     if "price" not in df.columns:
         return df, changes
+
+    df["price"] = df["price"].astype(object)
 
     for index in df.index:
 
