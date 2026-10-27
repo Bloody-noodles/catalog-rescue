@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://bloody-noodles.github.io/catalog-rescue/sitemap.xml

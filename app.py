@@ -20,7 +20,7 @@ from impact_report import build_impact_summary, build_export_report
 # ============================================================
 
 st.set_page_config(
-    page_title="Catalog Rescue",
+    page_title="Catalog Rescue — Product Catalog Quality Checker",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded",
