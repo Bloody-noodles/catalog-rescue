@@ -1,0 +1,6 @@
+sku,product_name,price,category,product_description,email,website_url,phone
+CLEAN-001,Notebook,2500,Stationery,Hardcover notebook,sales@example.com,https://example.com/products,08012345678
+CLEAN-002,Backpack,15000,Bags,Water resistant backpack,sales@example.com,https://example.com/products,08012345678
+CLEAN-003,Bottle,4500,Accessories,Reusable bottle,sales@example.com,https://example.com/products,08012345678
+CLEAN-004,Lamp,12000,Home,LED desk lamp,sales@example.com,https://example.com/products,08012345678
+CLEAN-005,Keyboard,22000,Electronics,Mechanical keyboard,sales@example.com,https://example.com/products,08012345678

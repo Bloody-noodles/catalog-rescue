@@ -1,0 +1,8 @@
+sku,product_name,brand,category,price,stock,warranty,website_url
+IPH15-128,iPhone 15,Apple,Smartphones,"₦1,250,000",12,12 months,https://example.com/iphone15
+IPH15-256,iPhone 15,apple,smartphones,"₦1,450,000",8,12 Months,https://example.com/iphone15
+SAMS-S24,Samsung Galaxy S24,Samsung,Smart Phone,"₦1,100,000",7,1 year,example.com/s24
+LAP-001,HP Pavilion 15,HP,Laptops,"₦950,000",4,12 months,https://example.com/hp
+LAP-002,Dell Inspiron 15,Dell,Laptops,-500000,2,12 months,https://example.com/dell
+HEAD-001,Wireless Headphones,Sony,Audio,1,18,,https://example.com/sony
+HEAD-001,Wireless Headphones,Sony,Audio,"₦120,000",18,,https://example.com/sony

@@ -1,0 +1,5 @@
+sku,product_name,price,category
+MIX-001,Item A,1000,Mixed
+MIX-002,Item B,not available,Mixed
+MIX-003,Item C,-500,Mixed
+MIX-004,Item D,"₦2,500",Mixed

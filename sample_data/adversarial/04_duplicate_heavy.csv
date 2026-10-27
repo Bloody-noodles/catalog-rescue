@@ -1,0 +1,12 @@
+sku,product_name,price,category
+DUP-001,Widget A,1000,Tools
+DUP-001,Widget A,1000,Tools
+DUP-001,Widget A,1000,Tools
+DUP-001,Widget A,1000,Tools
+DUP-001,Widget A,1000,Tools
+DUP-001,Widget A,1000,Tools
+DUP-002,Widget B,2000,Tools
+DUP-002,Widget B,2000,Tools
+DUP-002,Widget B,2000,Tools
+DUP-002,Widget B,2000,Tools
+UNQ-001,Widget C,3000,Tools

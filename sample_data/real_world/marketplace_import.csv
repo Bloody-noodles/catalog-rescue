@@ -1,0 +1,6 @@
+ Product Name ,SKU,Price,Category,Description,Email,Website URL,Phone
+Bluetooth Speaker,SPK-001,"₦35,000",Electronics,Portable bluetooth speaker,seller@example.com,https://shop.example.com/spk001,08012345678
+Bluetooth Speaker ,SPK-001,35000,electronics,,seller@@example.com,shop.example.com/spk001,08012345678
+Wireless Mouse,,"₦18,000",Computer Accessories,Wireless optical mouse,seller@example.com,https://shop.example.com/mouse,123
+USB Keyboard,KB-001,-25000,Computer accessories,,,,
+Laptop Stand,STAND-01,1,Accessories,Adjustable laptop stand,seller@example.com,https://shop.example.com/stand,08012345678

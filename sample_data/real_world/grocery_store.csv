@@ -1,0 +1,7 @@
+sku,product_name,category,unit,price,quantity,supplier_email,expiry_date
+RICE-001,Premium Long Grain Rice,Grains,10kg,"₦22,500",40,sales@groceryhub.com,2027-05-10
+RICE-002,Premium Long Grain Rice,grains,5 kg,"₦12,000",25,sales@@groceryhub.com,2027-05-10
+MILK-001,Full Cream Milk,Dairy,1L,"₦4,500",-7,orders@groceryhub.com,
+MILK-002,Full Cream Milk, dairy ,1 litre,"₦4,500",16,orders@groceryhub.com,2026-01-10
+,Tomato Paste,Canned Foods,400g,"₦2,100",50,supplier@groceryhub.com,2027-02-20
+TOM-002,,Canned Foods,400g,,20,,

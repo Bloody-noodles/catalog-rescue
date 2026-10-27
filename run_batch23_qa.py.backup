@@ -1,0 +1,89 @@
+import os
+import sys
+import traceback
+import pandas as pd
+
+from quality_checks import run_quality_checks
+from cleaner import clean_catalog
+from issue_analysis import analyze_issues
+from action_report import build_action_report
+from impact_report import build_impact_summary
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEST_DIR = os.path.join(BASE_DIR, "sample_data", "adversarial")
+
+TEST_FILES = [
+    "01_missing_required_columns.csv",
+    "02_empty_columns.csv",
+    "03_empty_catalog.csv",
+    "04_duplicate_heavy.csv",
+    "05_garbage_values.csv",
+    "06_weird_headers.csv",
+    "07_minimal_valid.csv",
+    "08_clean_catalog.csv",
+    "09_mixed_types_display.csv",
+    "10_boundary_values.csv",
+]
+
+def load_catalog(path):
+    return pd.read_csv(path)
+
+def run_one(filename):
+    path = os.path.join(TEST_DIR, filename)
+    df = load_catalog(path)
+
+    before = run_quality_checks(df)
+    cleaned, change_log = clean_catalog(df)
+    after = run_quality_checks(cleaned)
+
+    issues = analyze_issues(after)
+    actions = build_action_report(issues)
+    impact = build_impact_summary(before, after, change_log)
+
+    return {
+        "rows_before": len(df),
+        "rows_after": len(cleaned),
+        "columns": len(df.columns),
+        "before_score": before.get("health_score", 0),
+        "after_score": after.get("health_score", 0),
+        "issues_after": impact.get("issues_after", 0),
+        "automatic_changes": len(change_log),
+        "review_instances": actions.get("review_instances", 0),
+        "critical_instances": actions.get("critical_instances", 0),
+    }
+
+def main():
+    print("=" * 72)
+    print("CATALOG RESCUE — BATCH 23 ADVERSARIAL QA")
+    print("=" * 72)
+
+    passed = 0
+    failed = 0
+
+    for filename in TEST_FILES:
+        print(f"\n[{filename}]")
+        try:
+            result = run_one(filename)
+            print(f"  Rows:            {result['rows_before']} -> {result['rows_after']}")
+            print(f"  Health:          {result['before_score']} -> {result['after_score']}")
+            print(f"  Issues remaining:{result['issues_after']}")
+            print(f"  Safe changes:    {result['automatic_changes']}")
+            print(f"  Human review:    {result['review_instances']}")
+            print(f"  Critical:        {result['critical_instances']}")
+            print("  STATUS: PASS")
+            passed += 1
+        except Exception as exc:
+            print(f"  STATUS: FAIL")
+            print(f"  Error: {type(exc).__name__}: {exc}")
+            traceback.print_exc(limit=2)
+            failed += 1
+
+    print("\n" + "=" * 72)
+    print(f"RESULT: {passed} passed / {failed} failed")
+    print("=" * 72)
+
+    if failed:
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

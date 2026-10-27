@@ -1,0 +1,25 @@
+sku,product_name,price,category,description,email,website_url,phone,stock
+ SAFE-001 ,  Cotton T-Shirt  ,"₦35,000", clothing ,Basic cotton t-shirt,sales@example.com,https://example.com/product/1,08012345678,25
+SAFE-002,Leather Shoes,35000,Clothing,Leather shoes,sales@example.com,https://example.com/product/2,08012345678,10
+ABC-001,Product A,"₦20,000",Electronics,Test product,test@example.com,https://example.com/a,08012345678,5
+ ABC-002 ,Product B,"₦25,000",Electronics,Test product,test@example.com,https://example.com/b,08012345678,5
+ABC 003,Product C,"₦30,000",Electronics,SKU contains internal space,test@example.com,https://example.com/c,08012345678,5
+,Product D,"₦40,000",Electronics,Missing SKU,test@example.com,https://example.com/d,08012345678,5
+PRICE-001,Very Cheap Product,1,Misc,Price intentionally set to one,test@example.com,https://example.com/price1,08012345678,5
+PRICE-002,Extremely Expensive Product,999999999,Misc,Suspiciously high price,test@example.com,https://example.com/price2,08012345678,5
+PRICE-003,Negative Price Product,-5000,Misc,Invalid negative price,test@example.com,https://example.com/price3,08012345678,5
+PRICE-004,Zero Price Product,0,Misc,Zero price,test@example.com,https://example.com/price4,08012345678,5
+EMAIL-001,Valid Email,"₦10,000",Misc,Valid email,sales@example.com,https://example.com/email1,08012345678,5
+EMAIL-002,Broken Email,"₦10,000",Misc,Invalid email,sales@@example.com,https://example.com/email2,08012345678,5
+EMAIL-003,Missing Email,"₦10,000",Misc,Missing email,,https://example.com/email3,08012345678,5
+URL-001,Valid URL,"₦10,000",Misc,Valid URL,test@example.com,https://example.com/product,08012345678,5
+URL-002,Missing Protocol,"₦10,000",Misc,URL without protocol,test@example.com,example.com/product,08012345678,5
+PHONE-001,Valid Phone,"₦10,000",Misc,Valid phone,test@example.com,https://example.com/phone1,08012345678,5
+PHONE-002,Broken Phone,"₦10,000",Misc,Phone contains letters,test@example.com,https://example.com/phone2,08012ABC789,5
+PHONE-003,Short Phone,"₦10,000",Misc,Phone too short,test@example.com,https://example.com/phone3,123,5
+STOCK-001,Zero Stock,"₦10,000",Inventory,Zero stock may be intentional,test@example.com,https://example.com/stock1,08012345678,0
+STOCK-002,Negative Stock,"₦10,000",Inventory,Negative stock should be reviewed,test@example.com,https://example.com/stock2,08012345678,-5
+STOCK-003,Large Stock,"₦10,000",Inventory,Large but potentially valid stock,test@example.com,https://example.com/stock3,08012345678,1000000
+CAT-001,Category A,"₦10,000",Shoes,Category test,test@example.com,https://example.com/cat1,08012345678,5
+CAT-002,Category B,"₦10,000",shoes,Category test,test@example.com,https://example.com/cat2,08012345678,5
+CAT-003,Category C,"₦10,000", SHOES ,Category test,test@example.com,https://example.com/cat3,08012345678,5
