@@ -6,3 +6,7 @@ venv/
 .env.*
 !.env.example
 .streamlit/secrets.toml
+
+# Local and historical backup files
+*.backup
+*_backup*.py
