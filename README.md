@@ -1,5 +1,9 @@
 # Catalog Rescue
 
+**[Try it now, no install →](https://catalog-rescue.streamlit.app/)**
+
+Upload a messy product CSV, see what's wrong, get a cleaned file and a change log.
+
 Catalog Rescue is a Streamlit application for inspecting, cleaning and assessing product-catalog data before it is published or passed to downstream systems.
 
 It is designed to make catalog-quality problems visible and to distinguish safe, deterministic cleanup from issues that still need a human decision.
@@ -34,20 +38,26 @@ The application is an analysis and remediation aid. Its quality checks are pract
 
 ## Getting started
 
-### 1. Clone the repository
+### Try the live demo
+
+Open [Catalog Rescue](https://catalog-rescue.streamlit.app/) in your browser. No installation or repository clone is required.
+
+### Run locally
+
+#### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Bloody-noodles/catalog-rescue.git
 cd catalog-rescue
 ```
 
-### 2. Create and activate a virtual environment
+#### 2. Create and activate a virtual environment
 
 **Windows (PowerShell)**
 
 ```powershell
 python -m venv .venv
-.venv\Scripts\Activate.ps1
+.venv\\Scripts\\Activate.ps1
 ```
 
 **macOS / Linux**
@@ -57,14 +67,14 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### 3. Install dependencies
+#### 3. Install dependencies
 
 ```bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 4. Run the application
+#### 4. Run the application
 
 ```bash
 streamlit run app.py
@@ -74,9 +84,12 @@ Streamlit will print a local URL in the terminal, usually `http://localhost:8501
 
 ## Sample data
 
-The `sample_data/` directory contains sample catalog files and generators used during development. The included `sample_data/messy_catalog.csv` demonstrates common catalog issues such as missing SKUs, inconsistent text formatting, duplicate records and problematic prices.
+The `sample_data/` directory includes two CSV catalogs:
 
-Use sample data to explore the workflow before uploading business data.
+- `sample_data/torture_catalog.csv` — the stress-test dataset loaded by the application's **Load Demo Catalog** button.
+- `sample_data/messy_catalog.csv` — an additional messy catalog available for manual upload and testing.
+
+Sample data is provided so visitors can explore the workflow without using their own business catalog.
 
 ## Project structure
 
