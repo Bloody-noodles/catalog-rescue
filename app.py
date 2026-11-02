@@ -6,13 +6,8 @@ import textwrap
 import pandas as pd
 import streamlit as st
 
-from cleaner import clean_catalog
-from quality_checks import run_quality_checks
-from action_report import build_action_report
-from decision_engine import build_business_decision
-from report import build_quality_report
-from issue_analysis import build_issue_dataframe, analyze_issues
-from impact_report import build_impact_summary, build_export_report
+from catalog_engine import analyze_catalog
+from catalog_ingestion import load_catalog
 
 
 # ============================================================
@@ -38,6 +33,7 @@ defaults = {
     "after_results": None,
     "change_log": [],
     "impact_summary": None,
+    "analysis_result": None,
     "analyzed": False,
     "demo_mode": False,
     "uploaded_signature": None,
@@ -55,6 +51,7 @@ def reset_analysis():
     st.session_state.after_results = None
     st.session_state.change_log = []
     st.session_state.impact_summary = None
+    st.session_state.analysis_result = None
     st.session_state.analyzed = False
 
 
@@ -392,15 +389,6 @@ def render_business_decision(decision):
         st.metric("Automatic Actions", automatic_items)
 
 
-def read_uploaded_catalog(uploaded_file):
-    """Read supported catalog formats without silently discarding bad rows."""
-    filename = uploaded_file.name.lower()
-    if filename.endswith(".csv"):
-        # Keep mixed values as supplied; validation belongs to quality_checks.
-        return pd.read_csv(uploaded_file, low_memory=False)
-    return pd.read_excel(uploaded_file)
-
-
 def show_dataframe(df, **kwargs):
     """Render a display-safe copy while preserving the source dataframe."""
     st.dataframe(dataframe_for_display(df), width="stretch", **kwargs)
@@ -513,10 +501,7 @@ with demo_col:
     if st.button("🧪 Load Demo Catalog", width="stretch"):
         if os.path.exists(demo_path):
             try:
-                st.session_state.catalog_df = pd.read_csv(
-                    demo_path,
-                    low_memory=False,
-                )
+                st.session_state.catalog_df = load_catalog(demo_path)
                 st.session_state.demo_mode = True
                 st.session_state.uploaded_signature = None
                 reset_analysis()
@@ -538,7 +523,7 @@ if uploaded_file is not None:
 
         if file_signature != previous_signature:
             uploaded_file.seek(0)
-            df_uploaded = read_uploaded_catalog(uploaded_file)
+            df_uploaded = load_catalog(uploaded_file)
 
             st.session_state.catalog_df = df_uploaded
             st.session_state.uploaded_signature = file_signature
@@ -611,21 +596,14 @@ if st.session_state.catalog_df is not None:
     ):
         with st.spinner("Analyzing catalog quality..."):
             try:
-                before_results = run_quality_checks(df)
-                cleaned_df, change_log = clean_catalog(df.copy())
-                after_results = run_quality_checks(cleaned_df)
+                analysis_result = analyze_catalog(df)
 
-                impact_summary = build_impact_summary(
-                    before_results,
-                    after_results,
-                    change_log,
-                )
-
-                st.session_state.before_results = before_results
-                st.session_state.after_results = after_results
-                st.session_state.cleaned_df = cleaned_df
-                st.session_state.change_log = change_log
-                st.session_state.impact_summary = impact_summary
+                st.session_state.analysis_result = analysis_result
+                st.session_state.before_results = analysis_result["before_results"]
+                st.session_state.after_results = analysis_result["after_results"]
+                st.session_state.cleaned_df = analysis_result["cleaned_df"]
+                st.session_state.change_log = analysis_result["change_log"]
+                st.session_state.impact_summary = analysis_result["impact_summary"]
                 st.session_state.analyzed = True
 
                 st.success("Catalog analysis complete.")
@@ -642,6 +620,7 @@ if st.session_state.catalog_df is not None:
 # ============================================================
 
 if st.session_state.analyzed:
+    analysis_result = st.session_state.analysis_result
     before_results = st.session_state.before_results
     after_results = st.session_state.after_results
     cleaned_df = st.session_state.cleaned_df
@@ -649,8 +628,8 @@ if st.session_state.analyzed:
     impact = st.session_state.impact_summary
     df = st.session_state.catalog_df
 
-    report = build_quality_report(after_results)
-    business_decision = build_business_decision(after_results)
+    report = analysis_result["quality_report"]
+    business_decision = analysis_result["business_decision"]
     render_business_decision(business_decision)
 
     st.divider()
@@ -814,9 +793,9 @@ if st.session_state.analyzed:
     # DETAILED ISSUE ANALYSIS
     # --------------------------------------------------------
 
-    analyzed_issues = analyze_issues(after_results)
-    action_report = build_action_report(analyzed_issues)
-    issue_table = build_issue_dataframe(analyzed_issues)
+    analyzed_issues = analysis_result["issues"]
+    action_report = analysis_result["action_report"]
+    issue_table = analysis_result["issue_table"]
 
     # These values are retained for compatibility with the existing
     # action-report module; they are not used to alter the source results.
@@ -915,7 +894,7 @@ if st.session_state.analyzed:
         unsafe_allow_html=True,
     )
 
-    export_report = build_export_report(before_results, after_results, impact)
+    export_report = analysis_result["export_report"]
     csv_data = dataframe_to_csv(cleaned_df)
     excel_data = dataframe_to_excel(cleaned_df)
     changes_data = dataframe_to_csv(change_log_dataframe(change_log))

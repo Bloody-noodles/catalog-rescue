@@ -112,6 +112,40 @@ catalog-rescue/
 └── requirements.txt        # Python dependencies
 ```
 
+Both application interfaces share the framework-neutral ingestion and engine:
+
+```text
+Streamlit UI ─┐
+              ├─> catalog_ingestion ─> DataFrame ─> catalog_engine ─> domain logic
+FastAPI API ──┘
+```
+
+`catalog_ingestion.load_catalog(...)` reads supported files into pandas
+DataFrames; `catalog_engine.analyze_catalog(df)` runs the existing analysis.
+Streamlit remains responsible for session state, display, and downloads. The
+API returns a compact JSON analysis summary.
+
+Run the development API with:
+
+```bash
+uvicorn api.main:app --reload
+```
+
+The API provides `GET /health` and `POST /catalogs/analyze`. Its interactive
+OpenAPI documentation is available at `/docs`.
+
+## Database foundation
+
+The repository includes SQLAlchemy models and an Alembic initial migration for
+catalog metadata and analysis summaries. Database access is synchronous and
+requires `DATABASE_URL` in the process environment; importing the app does not
+connect or create tables. Uploaded catalog files are not stored in PostgreSQL.
+Use `.env.example` for the placeholder format only, and configure real
+credentials outside version control. The schema has not been applied to a
+database. `AnalysisRun.cleaned_record_count` represents the total rows in the
+cleaned DataFrame, matching the API's `cleaned_records` value; it does not
+represent the number of rows modified.
+
 ## Run tests
 
 The repository includes unit tests using Python's standard `unittest` framework.
