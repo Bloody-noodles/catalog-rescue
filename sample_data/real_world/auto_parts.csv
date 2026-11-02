@@ -1,0 +1,6 @@
+part_number,product_name,brand,category,price,vehicle_model,year,phone
+TOY-BRK-001,Toyota Corolla Brake Pad,Toyota,Brake Parts,"₦85,000",Corolla,2015-2019,08031234567
+TOY-BRK-002 ,Toyota Corolla Brake Pad,TOYOTA,brake parts,85000,Corolla,2015-2019,08031234567
+HON-OIL-001,Honda Civic Oil Filter,Honda,Filters,"₦15,500",Civic,2016-2020,0803ABC4567
+,Lexus RX350 Air Filter,Lexus,Filters,"₦22,000",RX350,2018-2022,08061234567
+LEX-AIR-002,Lexus RX350 Air Filter,Lexus,Filters,₦999999999,RX350,2018-2022,08061234567

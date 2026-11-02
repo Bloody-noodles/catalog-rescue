@@ -1,0 +1,7 @@
+sku,product_name,price,category
+B-001,One,1.0,Test
+B-002,Two,100000000.0,Test
+B-003,Three,0.0,Test
+B-004,Four,-1.0,Test
+B-005,Five,0.01,Test
+B-006,Six,999999999.0,Test

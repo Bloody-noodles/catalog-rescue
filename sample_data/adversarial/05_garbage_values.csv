@@ -1,0 +1,7 @@
+sku,product_name,price,category,email,website_url,phone
+A-001,Good,not available,Tools,good@example.com,https://example.com,08012345678
+A-002,,₦-500,tools,bad@@example,example.com,08012ABC789
+ ,,free,,x,not a url,123
+,Unknown,$abc,Hardware,,,
+A 005,Mixed,999999999,,sales@example,ftp://example.com,phone
+x,Tiny,"₦2,500",Tools,ok@test.com,https://ok.com,+2348012345678

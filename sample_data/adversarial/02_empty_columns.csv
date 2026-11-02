@@ -1,0 +1,4 @@
+sku,product_name,price,category,empty_field,another_empty_field
+SKU-001,Chair,25000,Furniture,,
+SKU-002,Desk,75000,Furniture,,
+SKU-003,Lamp,12000,Home,,
