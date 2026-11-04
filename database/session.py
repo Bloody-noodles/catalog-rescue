@@ -13,8 +13,8 @@ _engine_lock = RLock()
 
 
 def get_database_engine() -> Engine:
-    """Return the process-wide engine, creating it only when requested."""
     global _engine
+
     with _engine_lock:
         if _engine is None:
             _engine = create_database_engine()
@@ -24,8 +24,8 @@ def get_database_engine() -> Engine:
 def create_session_factory(
     engine: Engine | None = None,
 ) -> sessionmaker[Session]:
-    """Return the shared factory or create an isolated factory for an injected engine."""
     global _session_factory
+
     if engine is not None:
         return sessionmaker(
             bind=engine,
@@ -40,17 +40,21 @@ def create_session_factory(
                 autoflush=False,
                 expire_on_commit=False,
             )
+
         return _session_factory
 
 
 def dispose_database_engine(engine: Engine | None = None) -> None:
-    """Dispose an explicitly supplied engine or the shared engine, if initialized."""
     global _engine, _session_factory
+
     with _engine_lock:
         target = engine if engine is not None else _engine
+
         if target is None:
             return
+
         target.dispose()
+
         if target is _engine:
             _engine = None
             _session_factory = None
@@ -59,7 +63,13 @@ def dispose_database_engine(engine: Engine | None = None) -> None:
 def get_db_session(
     session_factory: sessionmaker[Session] | None = None,
 ) -> Iterator[Session]:
-    """Yield a request-scoped session and close it when the caller finishes."""
+    """Create a session, optionally using an injected session factory."""
     factory = session_factory or create_session_factory()
+
     with factory() as session:
         yield session
+
+
+def get_api_db_session() -> Iterator[Session]:
+    """Parameterless dependency for FastAPI."""
+    yield from get_db_session()

@@ -28,32 +28,36 @@ class PostgreSQLMigrationTests(unittest.TestCase):
             raise RuntimeError("CATALOG_RESCUE_TEST_DATABASE_URL must be PostgreSQL.")
 
         cls.admin_engine = create_engine(url, pool_pre_ping=True)
-        cls.schema = f"catalog_rescue_migration_test_{uuid4().hex}"
-        with cls.admin_engine.begin() as connection:
-            connection.execute(text(f'CREATE SCHEMA "{cls.schema}"'))
-        cls.database_url = url.set(
+
+    def setUp(self):
+        self.schema = f"catalog_rescue_migration_test_{uuid4().hex}"
+        with self.admin_engine.begin() as connection:
+            connection.execute(text(f'CREATE SCHEMA "{self.schema}"'))
+        url = self.admin_engine.url
+        self.database_url = url.set(
             query={
                 **url.query,
-                "options": f"-csearch_path={cls.schema}",
+                "options": f"-csearch_path={self.schema}",
             }
         ).render_as_string(hide_password=False)
-        cls.engine = create_engine(cls.database_url, pool_pre_ping=True)
+        self.engine = create_engine(self.database_url, pool_pre_ping=True)
+
+    def tearDown(self):
+        self.engine.dispose()
+        with self.admin_engine.begin() as connection:
+            connection.execute(text(f'DROP SCHEMA "{self.schema}" CASCADE'))
 
     @classmethod
     def tearDownClass(cls):
-        if hasattr(cls, "engine"):
-            cls.engine.dispose()
-        if hasattr(cls, "admin_engine") and hasattr(cls, "schema"):
-            with cls.admin_engine.begin() as connection:
-                connection.execute(text(f'DROP SCHEMA "{cls.schema}" CASCADE'))
-            cls.admin_engine.dispose()
+        cls.admin_engine.dispose()
 
-    def run_migrations(self, revision):
+    def run_migrations(self, revision, *, downgrade=False):
         previous_database_url = os.environ.get("DATABASE_URL")
         os.environ["DATABASE_URL"] = self.database_url
         try:
             config = Config(str(ROOT_DIR / "alembic.ini"))
-            command.upgrade(config, revision)
+            migration_command = command.downgrade if downgrade else command.upgrade
+            migration_command(config, revision)
         finally:
             if previous_database_url is None:
                 os.environ.pop("DATABASE_URL", None)
@@ -112,7 +116,7 @@ class PostgreSQLMigrationTests(unittest.TestCase):
             )
             self.insert_legacy_rows(connection, second_catalog_id, second_analysis_id)
 
-        self.run_migrations("head")
+        self.run_migrations("0006_user_ownership_idempotency")
         with self.engine.connect() as connection:
             self.assertEqual(
                 connection.execute(
@@ -303,7 +307,7 @@ class PostgreSQLMigrationTests(unittest.TestCase):
         )
 
         with self.assertRaisesRegex(RuntimeError, "ownership or idempotency data"):
-            self.run_migrations("0005_async_upload_idempotency")
+            self.run_migrations("0005_async_upload_idempotency", downgrade=True)
 
         with self.engine.begin() as connection:
             connection.execute(
@@ -316,7 +320,7 @@ class PostgreSQLMigrationTests(unittest.TestCase):
             )
             connection.execute(text("DELETE FROM users WHERE id = :id"), {"id": user_id})
 
-        self.run_migrations("0005_async_upload_idempotency")
+        self.run_migrations("0005_async_upload_idempotency", downgrade=True)
         inspector = inspect(self.engine)
         self.assertNotIn("users", inspector.get_table_names())
         self.assertNotIn("idempotency_records", inspector.get_table_names())
@@ -345,6 +349,87 @@ class PostgreSQLMigrationTests(unittest.TestCase):
                     text("SELECT COUNT(*) FROM analysis_runs")
                 ).scalar_one(),
                 2,
+            )
+
+    def test_0007_email_column_is_nullable_and_downgrade_discards_email(self):
+        catalog_id, analysis_id = uuid4(), uuid4()
+        user_id = uuid4()
+        self.run_migrations("0005_async_upload_idempotency")
+        self.run_migrations("0006_user_ownership_idempotency")
+        with self.engine.begin() as connection:
+            self.insert_legacy_rows(connection, catalog_id, analysis_id)
+        with self.engine.begin() as connection:
+            connection.execute(
+                text(
+                    "INSERT INTO users (id, issuer, subject) "
+                    "VALUES (:id, :issuer, :subject)"
+                ),
+                {
+                    "id": user_id,
+                    "issuer": "https://issuer.example/",
+                    "subject": "auth0|existing-user",
+                },
+            )
+
+        self.run_migrations("head")
+        with self.engine.connect() as connection:
+            self.assertEqual(
+                connection.execute(
+                    text("SELECT version_num FROM alembic_version")
+                ).scalar_one(),
+                "0007_user_profile_email",
+            )
+            user_email_column = next(
+                column
+                for column in inspect(self.engine).get_columns("users")
+                if column["name"] == "email"
+            )
+            self.assertTrue(user_email_column["nullable"])
+            self.assertIsNone(
+                connection.execute(
+                    text("SELECT email FROM users WHERE id = :id"),
+                    {"id": user_id},
+                ).scalar_one()
+            )
+            self.assertIsNone(
+                connection.execute(
+                    text("SELECT owner_id FROM catalogs WHERE id = :id"),
+                    {"id": catalog_id},
+                ).scalar_one()
+            )
+            self.assertEqual(
+                connection.execute(
+                    text("SELECT catalog_id FROM analysis_runs WHERE id = :id"),
+                    {"id": analysis_id},
+                ).scalar_one(),
+                catalog_id,
+            )
+
+        with self.engine.begin() as connection:
+            connection.execute(
+                text("UPDATE users SET email = :email WHERE id = :id"),
+                {"email": "verified@example.com", "id": user_id},
+            )
+
+        self.run_migrations("0006_user_ownership_idempotency", downgrade=True)
+        with self.engine.connect() as connection:
+            self.assertNotIn(
+                "email",
+                {column["name"] for column in inspect(self.engine).get_columns("users")},
+            )
+            self.assertEqual(
+                connection.execute(
+                    text("SELECT COUNT(*) FROM users WHERE id = :id"),
+                    {"id": user_id},
+                ).scalar_one(),
+                1,
+            )
+            self.assertEqual(
+                connection.execute(
+                    text("SELECT COUNT(*) FROM catalogs WHERE id = :id"),
+                    {"id": catalog_id},
+                ).scalar_one(),
+                1,
             )
 
 

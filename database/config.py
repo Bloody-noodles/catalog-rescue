@@ -6,6 +6,9 @@ from sqlalchemy.engine import Engine, make_url
 from sqlalchemy.exc import ArgumentError
 
 
+DATABASE_CONNECT_TIMEOUT_SECONDS = 5
+
+
 # Load the project's root .env without overriding existing environment variables.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(PROJECT_ROOT / ".env", override=False)
@@ -38,4 +41,9 @@ def create_database_engine() -> Engine:
     """Create a synchronous SQLAlchemy engine when explicitly requested."""
     from sqlalchemy import create_engine
 
-    return create_engine(get_database_url(), pool_pre_ping=True)
+    return create_engine(
+        get_database_url(),
+        pool_pre_ping=True,
+        pool_timeout=DATABASE_CONNECT_TIMEOUT_SECONDS,
+        connect_args={"connect_timeout": DATABASE_CONNECT_TIMEOUT_SECONDS},
+    )
